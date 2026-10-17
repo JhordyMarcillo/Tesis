@@ -1,0 +1,800 @@
+// Modelo convertido desde SQL a DBML.
+// Las restricciones CHECK no son nativas de DBML; se preservan en el archivo auxiliar.
+// IMPORTANTE: cat_fuentes_informacion se referencia en SQL, pero no se define en el archivo original.
+
+// RELACION PENDIENTE (tabla no definida): Ref: programa_fuentes.fuente_id > cat_fuentes_informacion.id
+// RELACION PENDIENTE (tabla no definida): Ref: convocatoria_fuentes.fuente_id > cat_fuentes_informacion.id
+
+Table cat_roles {
+  id integer [pk, not null]
+  nombre varchar(50) [not null, unique]
+  descripcion text
+}
+
+Table cat_paises {
+  id integer [pk, not null]
+  nombre varchar(100) [not null, unique]
+  codigo_iso char(2) [not null, unique]
+}
+
+Table cat_departamentos {
+  id integer [pk, not null]
+  nombre varchar(150) [not null, unique]
+  tipo varchar(20) [not null]
+  facultad varchar(150)
+  director_usuario_id char(36)
+  activo boolean [not null, default: true]
+}
+
+Table cat_entidades_financiadoras {
+  id integer [pk, not null]
+  nombre varchar(200) [not null, unique]
+  sigla varchar(30)
+  pais_id integer
+  tipo varchar(20) [not null]
+  naturaleza varchar(30)
+  sitio_web varchar(300)
+  correo_contacto varchar(150)
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table cat_tipos_requisito_documental {
+  id integer [pk, not null]
+  nombre varchar(150) [not null, unique]
+  descripcion text
+  orden smallint [not null]
+  obligatorio boolean [not null, default: true]
+}
+
+Table cat_tipos_alerta {
+  id integer [pk, not null]
+  codigo varchar(60) [not null, unique]
+  nombre varchar(150) [not null]
+  descripcion text
+  dias_anticipacion integer [not null, default: 0]
+}
+
+Table cat_instituciones_socias {
+  id integer [pk, not null]
+  nombre varchar(200) [not null]
+  pais_id integer
+  tipo_institucion varchar(50) [not null]
+
+  indexes {
+    (nombre, pais_id) [unique]
+  }
+}
+
+Table cat_periodos_academicos {
+  id integer [pk, not null]
+  nombre varchar(50) [not null]
+  anio smallint [not null]
+  periodo smallint [not null]
+  fecha_inicio date [not null]
+  fecha_fin date [not null]
+
+  indexes {
+    (anio, periodo) [unique]
+  }
+}
+
+Table cat_roles_proyecto {
+  id integer [pk, not null]
+  codigo varchar(40) [not null, unique]
+  nombre varchar(100) [not null]
+  descripcion text
+  permite_externo boolean [not null, default: false]
+  orden smallint
+}
+
+Table cat_programas_postgrado {
+  id integer [pk, not null]
+  nombre varchar(200) [not null, unique]
+}
+
+Table cat_dominios_academicos {
+  id integer [pk, not null]
+  nombre varchar(200) [not null, unique]
+}
+
+Table cat_lineas_investigacion {
+  id integer [pk, not null]
+  dominio_academico_id integer [not null]
+  nombre varchar(200) [not null]
+
+  indexes {
+    (dominio_academico_id, nombre) [unique]
+  }
+}
+
+Table cat_grupos_investigacion {
+  id integer [pk, not null]
+  codigo varchar(20) [not null, unique]
+  nombre varchar(200) [not null]
+  departamento_id integer
+}
+
+Table cat_tipos_investigacion {
+  id integer [pk, not null]
+  nombre varchar(100) [not null, unique]
+}
+
+Table cat_disciplinas_cientificas {
+  id integer [pk, not null]
+  nombre varchar(150) [not null, unique]
+}
+
+Table cat_objetivos_socioeconomicos {
+  id integer [pk, not null]
+  nombre varchar(200) [not null, unique]
+}
+
+Table cat_areas_conocimiento_espe {
+  id integer [pk, not null]
+  nombre varchar(150) [not null, unique]
+}
+
+Table cat_areas_unesco {
+  id integer [pk, not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_subareas_unesco {
+  id integer [pk, not null]
+  area_unesco_id integer [not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_campos_amplios {
+  id integer [pk, not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_campos_especificos {
+  id integer [pk, not null]
+  campo_amplio_id integer [not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_campos_detallados {
+  id integer [pk, not null]
+  campo_especifico_id integer [not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_ods {
+  id integer [pk, not null]
+  numero smallint [not null, unique]
+  nombre varchar(200) [not null]
+}
+
+Table cat_ods_metas {
+  id integer [pk, not null]
+  ods_id integer [not null]
+  codigo varchar(10) [not null]
+  descripcion text [not null]
+
+  indexes {
+    (ods_id, codigo) [unique]
+  }
+}
+
+Table cat_monedas {
+  id integer [pk, not null]
+  codigo_iso char(3) [not null, unique]
+  nombre varchar(50) [not null]
+  simbolo varchar(5)
+}
+
+Table cat_tipos_oportunidad {
+  id integer [pk, not null]
+  codigo varchar(40) [not null, unique]
+  nombre varchar(150) [not null]
+}
+
+Table cat_tipos_beneficiario {
+  id integer [pk, not null]
+  codigo varchar(40) [not null, unique]
+  nombre varchar(150) [not null]
+}
+
+Table cat_plataformas_postulacion {
+  id integer [pk, not null]
+  nombre varchar(150) [not null, unique]
+  url varchar(300)
+}
+
+Table cat_tipos_accion {
+  id integer [pk, not null]
+  codigo varchar(10) [not null, unique]
+  nombre varchar(150) [not null]
+  trl_min smallint
+  trl_max smallint
+  tasa_financiacion_pct decimal(5,2)
+  descripcion text
+}
+
+Table usuarios {
+  id char(36) [pk, not null]
+  cedula varchar(20) [not null, unique]
+  nombres varchar(150) [not null]
+  apellidos varchar(150) [not null]
+  email varchar(150) [not null, unique]
+  password_hash varchar(255) [not null]
+  telefono varchar(20)
+  departamento_id integer
+  indice_h_actual smallint [not null, default: 0]
+  activo boolean [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table usuario_roles {
+  usuario_id char(36) [not null]
+  rol_id integer [not null]
+  fecha_asignacion timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (usuario_id, rol_id) [pk]
+  }
+}
+
+Table programas_financiamiento {
+  id char(36) [pk, not null]
+  programa_padre_id char(36)
+  nombre varchar(250) [not null]
+  sigla varchar(30)
+  tipo_oportunidad_id integer [not null]
+  descripcion text
+  presupuesto_total decimal(18,2)
+  moneda_id integer
+  anio_inicio smallint
+  anio_fin smallint
+  url_oficial varchar(300)
+  activo boolean [not null, default: true]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table programa_entidades {
+  programa_id char(36) [not null]
+  entidad_financiadora_id integer [not null]
+  rol varchar(20) [not null]
+
+  indexes {
+    (programa_id, entidad_financiadora_id, rol) [pk]
+  }
+}
+
+Table programa_fuentes {
+  programa_id char(36) [not null]
+  fuente_id integer [not null]
+
+  indexes {
+    (programa_id, fuente_id) [pk]
+  }
+}
+
+Table convocatorias {
+  id char(36) [pk, not null]
+  programa_id char(36)
+  entidad_financiadora_id integer [not null]
+  tipo_oportunidad_id integer [not null]
+  tipo_accion_id integer
+  codigo varchar(50) [unique]
+  nombre varchar(250) [not null]
+  descripcion text
+  fecha_apertura date
+  fecha_cierre date
+  moneda_id integer [not null]
+  presupuesto_total_convocatoria decimal(18,2)
+  monto_maximo_proyecto decimal(14,2)
+  porcentaje_contraparte_min decimal(5,2)
+  tasa_financiacion_pct decimal(5,2)
+  modalidad_financiamiento varchar(20) [not null, default: 'DIRECTO']
+  duracion_min_meses smallint
+  duracion_max_meses smallint
+  prorroga_max_dias smallint
+  plataforma_postulacion_id integer
+  proceso_postulacion text
+  requiere_envio_fisico boolean [not null, default: false]
+  url_bases varchar(300)
+  estado varchar(20) [not null, default: 'POR_ANUNCIAR']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table convocatoria_fases {
+  id char(36) [pk, not null]
+  convocatoria_id char(36) [not null]
+  orden smallint [not null]
+  nombre varchar(150) [not null]
+  descripcion text
+  fecha_inicio date
+  fecha_fin date
+  duracion_meses smallint
+  prorroga_max_dias smallint
+
+  indexes {
+    (convocatoria_id, orden) [unique]
+  }
+}
+
+Table convocatoria_requisitos {
+  id char(36) [pk, not null]
+  convocatoria_id char(36) [not null]
+  orden smallint [not null]
+  categoria varchar(15) [not null]
+  descripcion text [not null]
+  valor_minimo decimal(10,2)
+  unidad varchar(40)
+  obligatorio boolean [not null, default: true]
+
+  indexes {
+    (convocatoria_id, orden) [unique]
+  }
+}
+
+Table convocatoria_coberturas {
+  id char(36) [pk, not null]
+  convocatoria_id char(36) [not null]
+  concepto varchar(200) [not null]
+  tipo varchar(15) [not null]
+  tope_monto decimal(14,2)
+  tope_porcentaje decimal(5,2)
+  periodicidad varchar(10)
+  cantidad decimal(10,2)
+  unidad varchar(40)
+  observaciones text
+}
+
+Table convocatoria_beneficiarios {
+  convocatoria_id char(36) [not null]
+  tipo_beneficiario_id integer [not null]
+
+  indexes {
+    (convocatoria_id, tipo_beneficiario_id) [pk]
+  }
+}
+
+Table convocatoria_categorias {
+  id char(36) [pk, not null]
+  convocatoria_id char(36) [not null]
+  nombre varchar(150) [not null]
+
+  indexes {
+    (convocatoria_id, nombre) [unique]
+  }
+}
+
+Table convocatoria_fuentes {
+  convocatoria_id char(36) [not null]
+  fuente_id integer [not null]
+
+  indexes {
+    (convocatoria_id, fuente_id) [pk]
+  }
+}
+
+Table proyectos {
+  id char(36) [pk, not null]
+  codigo_proyecto varchar(50) [not null, unique]
+  convocatoria_id char(36) [not null]
+  titulo varchar(300) [not null]
+  titulo_ingles varchar(300)
+  resumen text
+  investigador_principal_id char(36) [not null]
+  departamento_id integer [not null]
+  programa_postgrado_id integer
+  linea_investigacion_id integer [not null]
+  grupo_investigacion_id integer [not null]
+  tipo_investigacion_id integer [not null]
+  disciplina_cientifica_id integer [not null]
+  objetivo_socioeconomico_id integer [not null]
+  area_conocimiento_espe_id integer [not null]
+  subarea_unesco_id integer [not null]
+  campo_detallado_id integer [not null]
+  tipo_financiamiento varchar(10) [not null, default: 'DIRECTO']
+  fecha_adjudicacion_externa date [not null]
+  fecha_limite_registro date
+  fecha_registro date
+  presupuesto_inversion_espe decimal(14,2) [not null, default: 0]
+  presupuesto_corriente_espe decimal(14,2) [not null, default: 0]
+  presupuesto_inversion_auspiciante decimal(14,2) [not null, default: 0]
+  presupuesto_corriente_auspiciante decimal(14,2) [not null, default: 0]
+  fecha_inicio_ejecucion date
+  fecha_fin_planificada date
+  fecha_fin_real date
+  estado varchar(30) [not null, default: 'EN_EDICION']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table proyecto_aprobaciones {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  nivel varchar(20) [not null]
+  aprobador_id char(36)
+  fecha_solicitud timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  fecha_resolucion timestamp
+  estado varchar(20) [not null, default: 'PENDIENTE']
+  observaciones text
+
+  indexes {
+    (proyecto_id, nivel) [unique]
+  }
+}
+
+Table proyecto_requisitos_documentales {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  tipo_requisito_id integer [not null]
+  archivo_url varchar(400)
+  fecha_carga timestamp
+  cargado_por char(36)
+  estado varchar(20) [not null, default: 'PENDIENTE']
+  observaciones text
+
+  indexes {
+    (proyecto_id, tipo_requisito_id) [unique]
+  }
+}
+
+Table proyecto_aportes {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  tipo_aportante varchar(25) [not null]
+  entidad_financiadora_id integer
+  institucion_socia_id integer
+  tipo_aporte varchar(10) [not null]
+  concepto varchar(200)
+  monto decimal(14,2) [not null]
+  moneda_id integer [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table proyecto_equipo {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  rol_proyecto_id integer [not null]
+  usuario_id char(36)
+  externo_identificacion varchar(20)
+  externo_nombres varchar(150)
+  externo_apellidos varchar(150)
+  externo_institucion_id integer
+  externo_correo varchar(150)
+  fecha_incorporacion date [not null, default: `CURRENT_DATE`]
+  fecha_salida date
+}
+
+Table liberacion_horas {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  usuario_id char(36) [not null]
+  periodo_academico_id integer [not null]
+  horas_semanales decimal(5,2) [not null]
+  horas_totales_periodo decimal(6,2)
+  justificacion text [not null]
+  estado varchar(20) [not null, default: 'SOLICITADA']
+  aprobado_por char(36)
+  fecha_aprobacion timestamp
+
+  indexes {
+    (proyecto_id, usuario_id, periodo_academico_id) [unique]
+  }
+}
+
+Table proyecto_objetivos {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  tipo_objetivo varchar(12) [not null]
+  objetivo_general_id char(36)
+  descripcion text [not null]
+  indicador text
+  meta text
+  orden smallint
+}
+
+Table proyecto_riesgos {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  objetivo_afectado_id char(36)
+  riesgo text [not null]
+  probabilidad varchar(5) [not null]
+  impacto varchar(5) [not null]
+  accion_mitigacion text [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table proyecto_impactos {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  categoria varchar(25) [not null]
+  descripcion text [not null]
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table proyecto_ods_metas {
+  proyecto_id char(36) [not null]
+  ods_meta_id integer [not null]
+
+  indexes {
+    (proyecto_id, ods_meta_id) [pk]
+  }
+}
+
+Table proyecto_formulacion {
+  proyecto_id char(36) [pk, not null]
+  diagnostico_problema text
+  linea_base text
+  metodologia_investigacion text
+  viabilidad_tecnica text
+  estrategia_difusion_transferencia text
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table hitos {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  objetivo_especifico_id char(36)
+  nombre varchar(250) [not null]
+  descripcion text
+  orden smallint
+  fecha_inicio_planificada date [not null]
+  fecha_fin_planificada date [not null]
+  fecha_inicio_real date
+  fecha_fin_real date
+  porcentaje_avance smallint [not null, default: 0]
+  estado varchar(15) [not null, default: 'NO_INICIADO']
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table tareas {
+  id char(36) [pk, not null]
+  hito_id char(36) [not null]
+  nombre varchar(250) [not null]
+  descripcion text
+  responsable_id char(36)
+  fecha_inicio_planificada date [not null]
+  fecha_fin_planificada date [not null]
+  fecha_inicio_real date
+  fecha_fin_real date
+  porcentaje_avance smallint [not null, default: 0]
+  recursos_asignados text
+  estado varchar(15) [not null, default: 'NO_INICIADO']
+}
+
+Table periodos_reporte {
+  id char(36) [pk, not null]
+  tipo varchar(10) [not null]
+  entidad_financiadora_id integer
+  periodo_academico_id integer
+  anio smallint [not null]
+  fecha_corte date [not null]
+  etiqueta varchar(100) [not null]
+
+  indexes {
+    (tipo, entidad_financiadora_id, periodo_academico_id, fecha_corte) [unique]
+  }
+}
+
+Table informes_seguimiento {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  periodo_reporte_id char(36) [not null]
+  fecha_limite_presentacion date [not null]
+  fecha_presentacion timestamp
+  archivo_url varchar(400)
+  avance_tecnico_pct smallint
+  avance_financiero_pct smallint
+  horas_liberadas_justificadas decimal(6,2)
+  estado varchar(15) [not null, default: 'PENDIENTE']
+  observaciones text
+  presentado_por char(36)
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (proyecto_id, periodo_reporte_id) [unique]
+  }
+}
+
+Table prorrogas {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  fecha_solicitud timestamp [not null, default: `CURRENT_TIMESTAMP`]
+  fecha_vencimiento_original date [not null]
+  fecha_nueva_vencimiento date [not null]
+  motivo text [not null]
+  documento_aval_externo_url varchar(400) [not null]
+  estado varchar(20) [not null, default: 'SOLICITADA']
+  fecha_aval_externo date
+  solicitado_por char(36)
+  aprobado_por char(36)
+}
+
+Table cierres_proyecto {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  fecha_cierre date
+  certificado_aval_url varchar(400)
+  estado varchar(20) [not null, default: 'EN_PROCESO']
+  aprobado_por char(36)
+  observaciones text
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table publicaciones {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  titulo varchar(400) [not null]
+  tipo varchar(15) [not null, default: 'ARTICULO']
+  revista_evento varchar(250)
+  doi varchar(150)
+  fecha_publicacion date
+  indexacion varchar(100)
+  url varchar(400)
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table publicacion_autores {
+  publicacion_id char(36) [not null]
+  orden_autor smallint [not null]
+  usuario_id char(36)
+  nombre_autor_externo varchar(200)
+
+  indexes {
+    (publicacion_id, orden_autor) [pk]
+  }
+}
+
+Table patentes {
+  id char(36) [pk, not null]
+  proyecto_id char(36) [not null]
+  titulo varchar(400) [not null]
+  numero_registro varchar(100)
+  pais_id integer
+  fecha_solicitud date
+  fecha_concesion date
+  estado varchar(15) [not null, default: 'EN_TRAMITE']
+  url_documento varchar(400)
+}
+
+Table indice_h_historico {
+  id char(36) [pk, not null]
+  usuario_id char(36) [not null]
+  valor smallint [not null]
+  fecha_medicion date [not null, default: `CURRENT_DATE`]
+  fuente varchar(50) [not null]
+
+  indexes {
+    (usuario_id, fecha_medicion, fuente) [unique]
+  }
+}
+
+Table proyecto_instituciones_socias {
+  proyecto_id char(36) [not null]
+  institucion_socia_id integer [not null]
+  tipo_cooperacion varchar(100)
+  fecha_vinculacion date [not null, default: `CURRENT_DATE`]
+
+  indexes {
+    (proyecto_id, institucion_socia_id) [pk]
+  }
+}
+
+Table eventos_notificacion {
+  id char(36) [pk, not null]
+  proyecto_id char(36)
+  tipo_alerta_id integer [not null]
+  usuario_destino_id char(36) [not null]
+  fecha_programada timestamp [not null]
+  fecha_envio timestamp
+  canal varchar(10) [not null, default: 'SISTEMA']
+  estado varchar(10) [not null, default: 'PENDIENTE']
+  mensaje text [not null]
+  tabla_referencia varchar(50)
+  registro_referencia_id char(36)
+  metadata text
+  created_at timestamp [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+// Relaciones
+Ref: cat_entidades_financiadoras.pais_id > cat_paises.id
+Ref: cat_instituciones_socias.pais_id > cat_paises.id
+Ref: cat_lineas_investigacion.dominio_academico_id > cat_dominios_academicos.id
+Ref: cat_grupos_investigacion.departamento_id > cat_departamentos.id
+Ref: cat_subareas_unesco.area_unesco_id > cat_areas_unesco.id
+Ref: cat_campos_especificos.campo_amplio_id > cat_campos_amplios.id
+Ref: cat_campos_detallados.campo_especifico_id > cat_campos_especificos.id
+Ref: cat_ods_metas.ods_id > cat_ods.id
+Ref: usuarios.departamento_id > cat_departamentos.id
+Ref: usuario_roles.usuario_id > usuarios.id [delete: cascade]
+Ref: usuario_roles.rol_id > cat_roles.id
+Ref: programas_financiamiento.programa_padre_id > programas_financiamiento.id
+Ref: programas_financiamiento.tipo_oportunidad_id > cat_tipos_oportunidad.id
+Ref: programas_financiamiento.moneda_id > cat_monedas.id
+Ref: programa_entidades.programa_id > programas_financiamiento.id [delete: cascade]
+Ref: programa_entidades.entidad_financiadora_id > cat_entidades_financiadoras.id
+Ref: programa_fuentes.programa_id > programas_financiamiento.id [delete: cascade]
+Ref: convocatorias.programa_id > programas_financiamiento.id
+Ref: convocatorias.entidad_financiadora_id > cat_entidades_financiadoras.id
+Ref: convocatorias.tipo_oportunidad_id > cat_tipos_oportunidad.id
+Ref: convocatorias.tipo_accion_id > cat_tipos_accion.id
+Ref: convocatorias.moneda_id > cat_monedas.id
+Ref: convocatorias.plataforma_postulacion_id > cat_plataformas_postulacion.id
+Ref: convocatoria_fases.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: convocatoria_requisitos.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: convocatoria_coberturas.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: convocatoria_beneficiarios.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: convocatoria_beneficiarios.tipo_beneficiario_id > cat_tipos_beneficiario.id
+Ref: convocatoria_categorias.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: convocatoria_fuentes.convocatoria_id > convocatorias.id [delete: cascade]
+Ref: proyectos.convocatoria_id > convocatorias.id
+Ref: proyectos.investigador_principal_id > usuarios.id
+Ref: proyectos.departamento_id > cat_departamentos.id
+Ref: proyectos.programa_postgrado_id > cat_programas_postgrado.id
+Ref: proyectos.linea_investigacion_id > cat_lineas_investigacion.id
+Ref: proyectos.grupo_investigacion_id > cat_grupos_investigacion.id
+Ref: proyectos.tipo_investigacion_id > cat_tipos_investigacion.id
+Ref: proyectos.disciplina_cientifica_id > cat_disciplinas_cientificas.id
+Ref: proyectos.objetivo_socioeconomico_id > cat_objetivos_socioeconomicos.id
+Ref: proyectos.area_conocimiento_espe_id > cat_areas_conocimiento_espe.id
+Ref: proyectos.subarea_unesco_id > cat_subareas_unesco.id
+Ref: proyectos.campo_detallado_id > cat_campos_detallados.id
+Ref: proyecto_aprobaciones.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_aprobaciones.aprobador_id > usuarios.id
+Ref: proyecto_requisitos_documentales.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_requisitos_documentales.tipo_requisito_id > cat_tipos_requisito_documental.id
+Ref: proyecto_requisitos_documentales.cargado_por > usuarios.id
+Ref: proyecto_aportes.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_aportes.entidad_financiadora_id > cat_entidades_financiadoras.id
+Ref: proyecto_aportes.institucion_socia_id > cat_instituciones_socias.id
+Ref: proyecto_aportes.moneda_id > cat_monedas.id
+Ref: proyecto_equipo.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_equipo.rol_proyecto_id > cat_roles_proyecto.id
+Ref: proyecto_equipo.usuario_id > usuarios.id
+Ref: proyecto_equipo.externo_institucion_id > cat_instituciones_socias.id
+Ref: liberacion_horas.proyecto_id > proyectos.id [delete: cascade]
+Ref: liberacion_horas.usuario_id > usuarios.id
+Ref: liberacion_horas.periodo_academico_id > cat_periodos_academicos.id
+Ref: liberacion_horas.aprobado_por > usuarios.id
+Ref: proyecto_objetivos.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_objetivos.objetivo_general_id > proyecto_objetivos.id
+Ref: proyecto_riesgos.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_riesgos.objetivo_afectado_id > proyecto_objetivos.id
+Ref: proyecto_impactos.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_ods_metas.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_ods_metas.ods_meta_id > cat_ods_metas.id
+Ref: proyecto_formulacion.proyecto_id > proyectos.id [delete: cascade]
+Ref: hitos.proyecto_id > proyectos.id [delete: cascade]
+Ref: hitos.objetivo_especifico_id > proyecto_objetivos.id
+Ref: tareas.hito_id > hitos.id [delete: cascade]
+Ref: tareas.responsable_id > usuarios.id
+Ref: periodos_reporte.entidad_financiadora_id > cat_entidades_financiadoras.id
+Ref: periodos_reporte.periodo_academico_id > cat_periodos_academicos.id
+Ref: informes_seguimiento.proyecto_id > proyectos.id [delete: cascade]
+Ref: informes_seguimiento.periodo_reporte_id > periodos_reporte.id
+Ref: informes_seguimiento.presentado_por > usuarios.id
+Ref: prorrogas.proyecto_id > proyectos.id [delete: cascade]
+Ref: prorrogas.solicitado_por > usuarios.id
+Ref: prorrogas.aprobado_por > usuarios.id
+Ref: cierres_proyecto.proyecto_id > proyectos.id [delete: cascade]
+Ref: cierres_proyecto.aprobado_por > usuarios.id
+Ref: publicaciones.proyecto_id > proyectos.id [delete: cascade]
+Ref: publicacion_autores.publicacion_id > publicaciones.id [delete: cascade]
+Ref: publicacion_autores.usuario_id > usuarios.id
+Ref: patentes.proyecto_id > proyectos.id [delete: cascade]
+Ref: patentes.pais_id > cat_paises.id
+Ref: indice_h_historico.usuario_id > usuarios.id [delete: cascade]
+Ref: proyecto_instituciones_socias.proyecto_id > proyectos.id [delete: cascade]
+Ref: proyecto_instituciones_socias.institucion_socia_id > cat_instituciones_socias.id
+Ref: eventos_notificacion.proyecto_id > proyectos.id [delete: cascade]
+Ref: eventos_notificacion.tipo_alerta_id > cat_tipos_alerta.id
+Ref: eventos_notificacion.usuario_destino_id > usuarios.id
+Ref: cat_departamentos.director_usuario_id > usuarios.id
